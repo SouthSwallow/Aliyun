@@ -1,0 +1,41 @@
+//传入参数及其说明：
+        //PhoneNumbers--电话号码；TemplateCode--短信模板编号；TemplateParam--动态码
+        //TemplateCode--短信模板编号：SMS_190273040（用于注册）和SMS_190282734（找回密码）
+        //key和secret见于aliyun
+        public MessageCode sendMessage(string PhoneNumbers, string TemplateCode,string TemplateParam) {
+            ConsoleApp1.lei.MessageCode result=null;
+            string code = "code";
+            string c = "{" + code + ":" + TemplateParam + "}";
+            Console.WriteLine(c);
+            // 构建一个 Client，用于发起请求
+            IClientProfile profile = DefaultProfile.GetProfile(
+                "cn-hangzhou",
+                "<key>",
+                "<secret>");
+            DefaultAcsClient client = new DefaultAcsClient(profile);
+            CommonRequest request = new CommonRequest();
+            request.Method = MethodType.POST;
+            request.Domain = "dysmsapi.aliyuncs.com";
+            request.Version = "2017-05-25";
+            request.Action = "SendSms";
+            // request.Protocol = ProtocolType.HTTP;
+            request.AddQueryParameters("PhoneNumbers", PhoneNumbers);
+            request.AddQueryParameters("SignName", "找装修师傅网");
+            request.AddQueryParameters("TemplateCode", TemplateCode);
+            request.AddQueryParameters("TemplateParam", c);
+            try
+            {
+                CommonResponse response = client.GetCommonResponse(request);
+                result = JsonConvert.DeserializeObject<MessageCode>(Encoding.Default.GetString(response.HttpResponse.Content));
+                
+            }
+            catch (ServerException e)
+            {
+                Console.WriteLine(e);
+            }
+            catch (ClientException e)
+            {
+                Console.WriteLine(e);
+            }
+            return result;
+        }
